@@ -68,3 +68,54 @@ impl std::ops::Mul for Pauli {
         }
     }
 }
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn commutations() {
+        assert!(I.commutes_with(I));
+        assert!(I.commutes_with(X));
+        assert!(I.commutes_with(Y));
+        assert!(I.commutes_with(Z));
+
+        assert!(X.commutes_with(I));
+        assert!(X.commutes_with(X));
+        assert!(X.anticommutes_with(Y));
+        assert!(X.anticommutes_with(Z));
+
+        assert!(Y.commutes_with(I));
+        assert!(Y.anticommutes_with(X));
+        assert!(Y.commutes_with(Y));
+        assert!(Y.anticommutes_with(Z));
+
+        assert!(Z.commutes_with(I));
+        assert!(Z.anticommutes_with(X));
+        assert!(Z.anticommutes_with(Y));
+        assert!(Z.commutes_with(Z));
+    }
+
+    #[test]
+    fn multiplications() {
+        assert_eq!(I * I, I);
+        assert_eq!(I * X, X);
+        assert_eq!(I * Y, Y);
+        assert_eq!(I * Z, Z);
+
+        assert_eq!(X * I, X);
+        assert_eq!(X * X, I);
+        assert_eq!(X * Y, Z);
+        assert_eq!(X * Z, Y);
+
+        assert_eq!(Y * I, Y);
+        assert_eq!(Y * X, Z);
+        assert_eq!(Y * Y, I);
+        assert_eq!(Y * Z, X);
+
+        assert_eq!(Z * I, Z);
+        assert_eq!(Z * X, Y);
+        assert_eq!(Z * Y, X);
+        assert_eq!(Z * Z, I);
+    }
+}
