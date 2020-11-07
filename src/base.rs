@@ -1,4 +1,6 @@
-pub use Pauli::{I, X, Y, Z};
+use std::fmt::{self, Display};
+use std::ops;
+use Pauli::{I, X, Y, Z};
 
 /// A single qubit Pauli operator without a phase.
 ///
@@ -23,21 +25,6 @@ pub enum Pauli {
 }
 
 impl Pauli {
-    /// Checks if the operator commutes with the other operator.
-    ///
-    /// # Example
-    ///
-    /// ```
-    /// use pauli::{I, X, Y, Z};
-    ///
-    /// assert!(I.commutes_with(X));
-    /// assert!(Y.commutes_with(Y));
-    /// assert!(Z.commutes_with(I));
-    /// ```
-    pub fn commutes_with(self, other: Self) -> bool {
-        self == I || other == I || self == other
-    }
-
     /// Checks if the operator anti-commutes with the other operator.
     ///
     /// # Example
@@ -52,19 +39,41 @@ impl Pauli {
     pub fn anticommutes_with(self, other: Self) -> bool {
         !self.commutes_with(other)
     }
+
+    /// Checks if the operator commutes with the other operator.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use pauli::{I, X, Y, Z};
+    ///
+    /// assert!(I.commutes_with(X));
+    /// assert!(Y.commutes_with(Y));
+    /// assert!(Z.commutes_with(I));
+    /// ```
+    pub fn commutes_with(self, other: Self) -> bool {
+        self == I || other == I || self == other
+    }
 }
 
-impl std::ops::Mul for Pauli {
-    type Output = Self;
+impl_op_ex!(*|lhs: &Pauli, rhs: &Pauli| -> Pauli {
+    match (lhs, rhs) {
+        (I, &p) => p,
+        (&p, &q) if p == q => I,
+        (X, Y) => Z,
+        (Y, Z) => X,
+        (Z, X) => Y,
+        (p, q) => q * p,
+    }
+});
 
-    fn mul(self, other: Self) -> Self {
-        match (self, other) {
-            (I, p) => p,
-            (p, q) if p == q => I,
-            (X, Y) => Z,
-            (Y, Z) => X,
-            (Z, X) => Y,
-            (p, q) => q * p,
+impl Display for Pauli {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            I => write!(f, "I"),
+            X => write!(f, "X"),
+            Y => write!(f, "Y"),
+            Z => write!(f, "Z"),
         }
     }
 }
