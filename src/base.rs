@@ -54,6 +54,16 @@ impl Pauli {
     pub fn commutes_with(self, other: Self) -> bool {
         self == I || other == I || self == other
     }
+
+    /// Checks if the operator is not the identity.
+    pub fn is_non_trivial(self) -> bool {
+        self != I
+    }
+
+    /// Checks if the operator is the identity.
+    pub fn is_trivial(self) -> bool {
+        self == I
+    }
 }
 
 impl_op_ex!(*|lhs: &Pauli, rhs: &Pauli| -> Pauli {
@@ -65,6 +75,10 @@ impl_op_ex!(*|lhs: &Pauli, rhs: &Pauli| -> Pauli {
         (Z, X) => Y,
         (p, q) => q * p,
     }
+});
+
+impl_op_ex!(+= |lhs: &mut Pauli, rhs: &Pauli| {
+    *lhs = *lhs * rhs;
 });
 
 impl Display for Pauli {
