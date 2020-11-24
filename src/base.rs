@@ -77,7 +77,7 @@ impl_op_ex!(*|lhs: &Pauli, rhs: &Pauli| -> Pauli {
     }
 });
 
-impl_op_ex!(+= |lhs: &mut Pauli, rhs: &Pauli| {
+impl_op_ex!(*= |lhs: &mut Pauli, rhs: &Pauli| {
     *lhs = *lhs * rhs;
 });
 
@@ -140,5 +140,12 @@ mod test {
         assert_eq!(Z * X, Y);
         assert_eq!(Z * Y, X);
         assert_eq!(Z * Z, I);
+    }
+
+    #[test]
+    fn multiplications_and_assign() {
+        let mut p = X;
+        p *= Y;
+        assert_eq!(p, Z);
     }
 }
