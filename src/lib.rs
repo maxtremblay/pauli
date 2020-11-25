@@ -1,11 +1,9 @@
-/*!
- pauli is a library for manipulating quantum Pauli operators.
-*/
-
-#[macro_use]
-extern crate impl_ops;
-
-pub mod base;
-
-pub use base::Pauli;
+mod pauli;
+pub use crate::pauli::Pauli;
 pub use Pauli::{I, X, Y, Z};
+
+mod operators;
+pub use crate::operators::DensePauliOperator;
+
+mod phase;
+pub use crate::phase::Phase;

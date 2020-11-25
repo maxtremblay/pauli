@@ -1,5 +1,5 @@
+use crate::Phase;
 use std::fmt::{self, Display};
-use std::ops;
 use Pauli::{I, X, Y, Z};
 
 /// A single qubit Pauli operator without a phase.
@@ -11,8 +11,10 @@ use Pauli::{I, X, Y, Z};
 ///
 /// ```
 /// use pauli::{I, X, Y, Z};
+/// use pauli::Phase;
 ///
 /// assert_eq!(X * Y, Z);
+/// assert_eq!(X.multiply_with_phase(Y), (Phase::i(), Z));
 /// assert!(X.commutes_with(I));
 /// assert!(Y.anticommutes_with(Z));
 /// ```
@@ -64,22 +66,54 @@ impl Pauli {
     pub fn is_trivial(self) -> bool {
         self == I
     }
+
+    /// Multiplies two Paulis together returning a (Phase, Pauli) pair.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use pauli::{X, Y, Z};
+    /// # use pauli::Phase;
+    ///
+    /// assert_eq!(X.multiply_with_phase(Y), (Phase::i(), Z));
+    /// ```
+    pub fn multiply_with_phase(self, other: Self) -> (Phase, Self) {
+        match (self, other) {
+            (I, p) => (Phase::one(), p),
+            (p, I) => (Phase::one(), p),
+            (X, X) => (Phase::one(), I),
+            (X, Y) => (Phase::i(), Z),
+            (X, Z) => (Phase::minus_i(), Y),
+            (Y, X) => (Phase::minus_i(), Z),
+            (Y, Y) => (Phase::one(), I),
+            (Y, Z) => (Phase::i(), X),
+            (Z, X) => (Phase::i(), Y),
+            (Z, Y) => (Phase::minus_i(), X),
+            (Z, Z) => (Phase::one(), I),
+        }
+    }
 }
 
-impl_op_ex!(*|lhs: &Pauli, rhs: &Pauli| -> Pauli {
-    match (lhs, rhs) {
-        (I, &p) => p,
-        (&p, &q) if p == q => I,
-        (X, Y) => Z,
-        (Y, Z) => X,
-        (Z, X) => Y,
-        (p, q) => q * p,
-    }
-});
+impl std::ops::Mul<Pauli> for Pauli {
+    type Output = Self;
 
-impl_op_ex!(*= |lhs: &mut Pauli, rhs: &Pauli| {
-    *lhs = *lhs * rhs;
-});
+    fn mul(self, other: Self) -> Self {
+        match (self, other) {
+            (I, p) => p,
+            (p, q) if p == q => I,
+            (X, Y) => Z,
+            (Y, Z) => X,
+            (Z, X) => Y,
+            (p, q) => q * p,
+        }
+    }
+}
+
+impl std::ops::MulAssign<Pauli> for Pauli {
+    fn mul_assign(&mut self, other: Self) {
+        *self = *self * other;
+    }
+}
 
 impl Display for Pauli {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
@@ -120,22 +154,19 @@ mod test {
     }
 
     #[test]
-    fn multiplications() {
+    fn multiplication() {
         assert_eq!(I * I, I);
         assert_eq!(I * X, X);
         assert_eq!(I * Y, Y);
         assert_eq!(I * Z, Z);
-
         assert_eq!(X * I, X);
         assert_eq!(X * X, I);
         assert_eq!(X * Y, Z);
         assert_eq!(X * Z, Y);
-
         assert_eq!(Y * I, Y);
         assert_eq!(Y * X, Z);
         assert_eq!(Y * Y, I);
         assert_eq!(Y * Z, X);
-
         assert_eq!(Z * I, Z);
         assert_eq!(Z * X, Y);
         assert_eq!(Z * Y, X);
@@ -143,9 +174,22 @@ mod test {
     }
 
     #[test]
-    fn multiplications_and_assign() {
-        let mut p = X;
-        p *= Y;
-        assert_eq!(p, Z);
+    fn multiplication_with_phase() {
+        assert_eq!(I.multiply_with_phase(I), (Phase::one(), I));
+        assert_eq!(I.multiply_with_phase(X), (Phase::one(), X));
+        assert_eq!(I.multiply_with_phase(Y), (Phase::one(), Y));
+        assert_eq!(I.multiply_with_phase(Z), (Phase::one(), Z));
+        assert_eq!(X.multiply_with_phase(I), (Phase::one(), X));
+        assert_eq!(X.multiply_with_phase(X), (Phase::one(), I));
+        assert_eq!(X.multiply_with_phase(Y), (Phase::i(), Z));
+        assert_eq!(X.multiply_with_phase(Z), (Phase::minus_i(), Y));
+        assert_eq!(Y.multiply_with_phase(I), (Phase::one(), Y));
+        assert_eq!(Y.multiply_with_phase(X), (Phase::minus_i(), Z));
+        assert_eq!(Y.multiply_with_phase(Y), (Phase::one(), I));
+        assert_eq!(Y.multiply_with_phase(Z), (Phase::i(), X));
+        assert_eq!(Z.multiply_with_phase(I), (Phase::one(), Z));
+        assert_eq!(Z.multiply_with_phase(X), (Phase::i(), Y));
+        assert_eq!(Z.multiply_with_phase(Y), (Phase::minus_i(), X));
+        assert_eq!(Z.multiply_with_phase(Z), (Phase::one(), I));
     }
 }
