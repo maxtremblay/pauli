@@ -1,5 +1,5 @@
 use std::fmt::{self, Display};
-use std::ops;
+use std::ops::Mul;
 use Pauli::{I, X, Y, Z};
 
 /// A single qubit Pauli operator without a phase.
@@ -66,20 +66,20 @@ impl Pauli {
     }
 }
 
-impl_op_ex!(*|lhs: &Pauli, rhs: &Pauli| -> Pauli {
-    match (lhs, rhs) {
-        (I, &p) => p,
-        (&p, &q) if p == q => I,
-        (X, Y) => Z,
-        (Y, Z) => X,
-        (Z, X) => Y,
-        (p, q) => q * p,
-    }
-});
+impl Mul<Pauli> for Pauli {
+    type Output = Pauli;
 
-impl_op_ex!(+= |lhs: &mut Pauli, rhs: &Pauli| {
-    *lhs = *lhs * rhs;
-});
+    fn mul(self, other: Pauli) -> Pauli {
+        match (self, other) {
+            (I, p) => p,
+            (p, q) if p == q => I,
+            (X, Y) => Z,
+            (Y, Z) => X,
+            (Z, X) => Y,
+            (p, q) => q * p,
+        }
+    }
+}
 
 impl Display for Pauli {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
