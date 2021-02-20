@@ -1,8 +1,12 @@
 [package]
 name = "pauli"
 version = "0.1.1"
-authors = ["maxime"]
+authors = ["maxtremblay <matrem@protonmail.com>"]
 edition = "2018"
+description = "A toolbox for quantum Pauli operator"
+license = "MIT OR Apache-2.0"
+keywords = ["quantum"]
+categories = ["science"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
