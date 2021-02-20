@@ -1,6 +1,6 @@
 [package]
 name = "pauli"
-version = "0.1.1"
+version = "0.2.0"
 authors = ["maxtremblay <matrem@protonmail.com>"]
 edition = "2018"
 description = "A toolbox for quantum Pauli operator"
