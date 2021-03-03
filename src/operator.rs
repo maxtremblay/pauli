@@ -299,6 +299,55 @@ impl PauliOperator {
             Ok(PauliOperator::new(self.len(), positions, paulis))
         }
     }
+
+    /// Converts a PauliOperator to a Vec of its non trivial positions
+    /// consumming the operator.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use pauli::PauliOperator;
+    /// # use pauli::{X, Y, Z};
+    /// let operator = PauliOperator::new(5, vec![1, 2, 3], vec![X, Y, Z]);
+    /// let positions = operator.into_raw_positions();
+    /// assert_eq!(positions, vec![1, 2, 3]);
+    /// ```
+    pub fn into_raw_positions(self) -> Vec<usize> {
+        self.paulis.into_raw_storage().0
+    }
+
+    /// Converts a PauliOperator to a Vec of the Paulis
+    /// consumming the operator.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use pauli::PauliOperator;
+    /// # use pauli::{X, Y, Z};
+    /// let operator = PauliOperator::new(5, vec![1, 2, 3], vec![X, Y, Z]);
+    /// let paulis = operator.into_raw_paulis();
+    /// assert_eq!(paulis, vec![X, Y, Z]);
+    /// ```
+    pub fn into_raw_paulis(self) -> Vec<Pauli> {
+        self.paulis.into_raw_storage().1
+    }
+
+    /// Converts a PauliOperator to a Vec of the positions and
+    /// a Vec of Paulis consumming the operator.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use pauli::PauliOperator;
+    /// # use pauli::{X, Y, Z};
+    /// let operator = PauliOperator::new(5, vec![1, 2, 3], vec![X, Y, Z]);
+    /// let (positions, paulis) = operator.into_raw();
+    /// assert_eq!(positions, vec![1, 2, 3]);
+    /// assert_eq!(paulis, vec![X, Y, Z]);
+    /// ```
+    pub fn into_raw(self) -> (Vec<usize>, Vec<Pauli>) {
+        self.paulis.into_raw_storage()
+    }
 }
 
 impl<'a> Mul<&'a PauliOperator> for &'a PauliOperator {
