@@ -1,6 +1,7 @@
 use std::fmt::{self, Display};
 use std::ops::Mul;
 use Pauli::{I, X, Y, Z};
+use serde::{Serialize, Deserialize};
 
 /// A single qubit Pauli operator without a phase.
 ///
@@ -16,7 +17,7 @@ use Pauli::{I, X, Y, Z};
 /// assert!(X.commutes_with(I));
 /// assert!(Y.anticommutes_with(Z));
 /// ```
-#[derive(Debug, PartialEq, Eq, Clone, Copy, Hash)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy, Hash, Serialize, Deserialize)]
 pub enum Pauli {
     I,
     X,

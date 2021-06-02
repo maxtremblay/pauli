@@ -5,6 +5,7 @@ use std::error::Error;
 use std::fmt;
 use std::ops::Mul;
 use Pauli::{X, Z};
+use serde::{Serialize, Deserialize};
 
 /// A Pauli operator optimized for sparse operations.
 ///
@@ -14,7 +15,7 @@ use Pauli::{X, Z};
 /// we usually only care about the non-identity positions
 /// and we refer to the previous as operators as `X_1 X_3`
 /// and `X_0 Y_2 Z_4`.
-#[derive(Debug, PartialEq, Eq, Clone, Hash)]
+#[derive(Debug, PartialEq, Eq, Clone, Hash, Serialize, Deserialize)]
 pub struct PauliOperator {
     paulis: CsVec<Pauli>,
 }
